@@ -86,21 +86,6 @@ class ComposioYoutubeAPIComponent(ComposioBaseComponent):
             "get_result_field": True,
             "result_field": "snippet",
         },
-        "YOUTUBE_UPDATE_THUMBNAIL": {
-            "display_name": "Update Thumbnail",
-            "action_fields": ["YOUTUBE_UPDATE_THUMBNAIL_thumbnailUrl", "YOUTUBE_UPDATE_THUMBNAIL_videoId"],
-        },
-        "YOUTUBE_UPLOAD_VIDEO": {
-            "display_name": "Upload Video",
-            "action_fields": [
-                "YOUTUBE_UPLOAD_VIDEO_categoryId",
-                "YOUTUBE_UPLOAD_VIDEO_description",
-                "YOUTUBE_UPLOAD_VIDEO_privacyStatus",
-                "YOUTUBE_UPLOAD_VIDEO_tags",
-                "YOUTUBE_UPLOAD_VIDEO_title",
-                "YOUTUBE_UPLOAD_VIDEO_videoFilePath",
-            ],
-        },
         "YOUTUBE_VIDEO_DETAILS": {
             "display_name": "Video Details",
             "action_fields": ["YOUTUBE_VIDEO_DETAILS_id", "YOUTUBE_VIDEO_DETAILS_part"],
@@ -109,7 +94,7 @@ class ComposioYoutubeAPIComponent(ComposioBaseComponent):
         },
     }
 
-    _list_variables = {"YOUTUBE_UPDATE_VIDEO_tags", "YOUTUBE_UPLOAD_VIDEO_tags"}
+    _list_variables = {"YOUTUBE_UPDATE_VIDEO_tags"}
 
     _all_fields = {field for action_data in _actions_data.values() for field in action_data["action_fields"]}
 
@@ -259,20 +244,6 @@ class ComposioYoutubeAPIComponent(ComposioBaseComponent):
             required=True,
         ),
         MessageTextInput(
-            name="YOUTUBE_UPDATE_THUMBNAIL_thumbnailUrl",
-            display_name="Thumbnail URL",
-            info="URL of the new thumbnail image",
-            show=False,
-            required=True,
-        ),
-        MessageTextInput(
-            name="YOUTUBE_UPDATE_THUMBNAIL_videoId",
-            display_name="Video ID",
-            info="YouTube video ID for which the thumbnail should be updated",
-            show=False,
-            required=True,
-        ),
-        MessageTextInput(
             name="YOUTUBE_UPDATE_VIDEO_categoryId",
             display_name="Category ID",
             info="YouTube category ID of the video",
@@ -306,48 +277,6 @@ class ComposioYoutubeAPIComponent(ComposioBaseComponent):
             name="YOUTUBE_UPDATE_VIDEO_videoId",
             display_name="Video ID",
             info="YouTube video ID to be updated",
-            show=False,
-            required=True,
-        ),
-        MessageTextInput(
-            name="YOUTUBE_UPLOAD_VIDEO_categoryId",
-            display_name="Category ID",
-            info="YouTube category ID of the video",
-            show=False,
-            required=True,
-        ),
-        MessageTextInput(
-            name="YOUTUBE_UPLOAD_VIDEO_description",
-            display_name="Description",
-            info="The description of the video",
-            show=False,
-            required=True,
-        ),
-        MessageTextInput(
-            name="YOUTUBE_UPLOAD_VIDEO_privacyStatus",
-            display_name="Privacy Status",
-            info="The privacy status of the video. Valid values are 'public', 'private', and 'unlisted'",
-            show=False,
-            required=True,
-        ),
-        MessageTextInput(
-            name="YOUTUBE_UPLOAD_VIDEO_tags",
-            display_name="Tags",
-            info="List of tags associated with the video",
-            show=False,
-            required=True,
-        ),
-        MessageTextInput(
-            name="YOUTUBE_UPLOAD_VIDEO_title",
-            display_name="Title",
-            info="The title of the video",
-            show=False,
-            required=True,
-        ),
-        MessageTextInput(
-            name="YOUTUBE_UPLOAD_VIDEO_videoFilePath",
-            display_name="Video File Path",
-            info="File path of the video to be uploaded",
             show=False,
             required=True,
         ),
