@@ -1,3 +1,4 @@
+import json
 from typing import Any
 
 from composio import Action
@@ -415,7 +416,33 @@ class ComposioYoutubeAPIComponent(ComposioBaseComponent):
                 params=params,
             )
             if not result.get("successful"):
-                return {"error": result.get("error", "No response")}
+                message = result.get("data", {}).get("message", {})
+
+                error_info = {"error": result.get("error", "No response")}
+                if isinstance(message, str):
+                    try:
+                        parsed_message = json.loads(message)
+                        if isinstance(parsed_message, dict) and "error" in parsed_message:
+                            error_data = parsed_message["error"]
+                            error_info = {
+                                "error": {
+                                    "code": error_data.get("code", "Unknown"),
+                                    "message": error_data.get("message", "No error message"),
+                                }
+                            }
+                    except (json.JSONDecodeError, KeyError) as e:
+                        logger.error(f"Failed to parse error message as JSON: {e}")
+                        error_info = {"error": str(message)}
+                elif isinstance(message, dict) and "error" in message:
+                    error_data = message["error"]
+                    error_info = {
+                        "error": {
+                            "code": error_data.get("code", "Unknown"),
+                            "message": error_data.get("message", "No error message"),
+                        }
+                    }
+
+                return error_info
 
             result_data = result.get("data", [])
             # Handle result_field if get_result_field is True
