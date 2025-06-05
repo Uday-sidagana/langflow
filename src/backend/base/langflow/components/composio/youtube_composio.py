@@ -1,7 +1,6 @@
 from typing import Any
 
 from composio import Action
-import json
 
 from langflow.base.composio.composio_base import ComposioBaseComponent
 from langflow.inputs import (
@@ -50,7 +49,7 @@ class ComposioYoutubeAPIComponent(ComposioBaseComponent):
                 "YOUTUBE_LIST_USER_PLAYLISTS_part",
             ],
             "get_result_field": True,
-            "result_field": "items",
+            "result_field": "response_data",
         },
         "YOUTUBE_LIST_USER_SUBSCRIPTIONS": {
             "display_name": "List User Subscriptions",
@@ -78,7 +77,7 @@ class ComposioYoutubeAPIComponent(ComposioBaseComponent):
                 "YOUTUBE_SEARCH_YOU_TUBE_type",
             ],
             "get_result_field": True,
-            "result_field": "response_data",  #Next_page_token
+            "result_field": "response_data",  # Next_page_token
         },
         "YOUTUBE_SUBSCRIBE_CHANNEL": {
             "display_name": "Subscribe Channel",
@@ -98,7 +97,7 @@ class ComposioYoutubeAPIComponent(ComposioBaseComponent):
                 "YOUTUBE_UPLOAD_VIDEO_privacyStatus",
                 "YOUTUBE_UPLOAD_VIDEO_tags",
                 "YOUTUBE_UPLOAD_VIDEO_title",
-                "YOUTUBE_UPLOAD_VIDEO_videoFilePath", 
+                "YOUTUBE_UPLOAD_VIDEO_videoFilePath",
             ],
         },
         "YOUTUBE_VIDEO_DETAILS": {
