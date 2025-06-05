@@ -380,6 +380,9 @@ class ComposioYoutubeAPIComponent(ComposioBaseComponent):
                 result_field = action_data.get("result_field")
                 if result_field:
                     found = self._find_key_recursively(result_data, result_field)
+                    # If found is empty (None, empty list, or empty dict), return the entire data dict
+                    if found is None or found == [] or found == {}:
+                        return result_data
                     if found is not None:
                         return found
                 return result_data
