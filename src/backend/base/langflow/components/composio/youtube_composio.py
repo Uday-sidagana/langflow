@@ -1,6 +1,7 @@
 from typing import Any
 
 from composio import Action
+import json
 
 from langflow.base.composio.composio_base import ComposioBaseComponent
 from langflow.inputs import (
@@ -21,10 +22,14 @@ class ComposioYoutubeAPIComponent(ComposioBaseComponent):
         "YOUTUBE_GET_CHANNEL_ID_BY_HANDLE": {
             "display_name": "Get Channel ID by Handle",
             "action_fields": ["YOUTUBE_GET_CHANNEL_ID_BY_HANDLE_channel_handle"],
+            "get_result_field": True,
+            "result_field": "items",
         },
         "YOUTUBE_LIST_CAPTION_TRACK": {
             "display_name": "List Caption Track",
             "action_fields": ["YOUTUBE_LIST_CAPTION_TRACK_part", "YOUTUBE_LIST_CAPTION_TRACK_videoId"],
+            "get_result_field": True,
+            "result_field": "items",
         },
         "YOUTUBE_LIST_CHANNEL_VIDEOS": {
             "display_name": "List Channel Videos",
@@ -34,6 +39,8 @@ class ComposioYoutubeAPIComponent(ComposioBaseComponent):
                 "YOUTUBE_LIST_CHANNEL_VIDEOS_pageToken",
                 "YOUTUBE_LIST_CHANNEL_VIDEOS_part",
             ],
+            "get_result_field": True,
+            "result_field": "items",
         },
         "YOUTUBE_LIST_USER_PLAYLISTS": {
             "display_name": "List User Playlists",
@@ -42,6 +49,8 @@ class ComposioYoutubeAPIComponent(ComposioBaseComponent):
                 "YOUTUBE_LIST_USER_PLAYLISTS_pageToken",
                 "YOUTUBE_LIST_USER_PLAYLISTS_part",
             ],
+            "get_result_field": True,
+            "result_field": "items",
         },
         "YOUTUBE_LIST_USER_SUBSCRIPTIONS": {
             "display_name": "List User Subscriptions",
@@ -50,10 +59,14 @@ class ComposioYoutubeAPIComponent(ComposioBaseComponent):
                 "YOUTUBE_LIST_USER_SUBSCRIPTIONS_pageToken",
                 "YOUTUBE_LIST_USER_SUBSCRIPTIONS_part",
             ],
+            "get_result_field": True,
+            "result_field": "items",
         },
         "YOUTUBE_LOAD_CAPTIONS": {
             "display_name": "Load Captions",
             "action_fields": ["YOUTUBE_LOAD_CAPTIONS_id", "YOUTUBE_LOAD_CAPTIONS_tfmt"],
+            "get_result_field": True,
+            "result_field": "data",
         },
         "YOUTUBE_SEARCH_YOU_TUBE": {
             "display_name": "Search YouTube",
@@ -64,10 +77,14 @@ class ComposioYoutubeAPIComponent(ComposioBaseComponent):
                 "YOUTUBE_SEARCH_YOU_TUBE_q",
                 "YOUTUBE_SEARCH_YOU_TUBE_type",
             ],
+            "get_result_field": True,
+            "result_field": "response_data",  #Next_page_token
         },
         "YOUTUBE_SUBSCRIBE_CHANNEL": {
             "display_name": "Subscribe Channel",
             "action_fields": ["YOUTUBE_SUBSCRIBE_CHANNEL_channelId"],
+            "get_result_field": True,
+            "result_field": "snippet",
         },
         "YOUTUBE_UPDATE_THUMBNAIL": {
             "display_name": "Update Thumbnail",
@@ -81,12 +98,14 @@ class ComposioYoutubeAPIComponent(ComposioBaseComponent):
                 "YOUTUBE_UPLOAD_VIDEO_privacyStatus",
                 "YOUTUBE_UPLOAD_VIDEO_tags",
                 "YOUTUBE_UPLOAD_VIDEO_title",
-                "YOUTUBE_UPLOAD_VIDEO_videoFilePath",
+                "YOUTUBE_UPLOAD_VIDEO_videoFilePath", 
             ],
         },
         "YOUTUBE_VIDEO_DETAILS": {
             "display_name": "Video Details",
             "action_fields": ["YOUTUBE_VIDEO_DETAILS_id", "YOUTUBE_VIDEO_DETAILS_part"],
+            "get_result_field": True,
+            "result_field": "items",
         },
     }
 
@@ -348,6 +367,22 @@ class ComposioYoutubeAPIComponent(ComposioBaseComponent):
         ),
     ]
 
+    def _find_key_recursively(self, data, key):
+        """Recursively search for a key in nested dicts/lists and return its value if found."""
+        if isinstance(data, dict):
+            if key in data:
+                return data[key]
+            for v in data.values():
+                found = self._find_key_recursively(v, key)
+                if found is not None:
+                    return found
+        elif isinstance(data, list):
+            for item in data:
+                found = self._find_key_recursively(item, key)
+                if found is not None:
+                    return found
+        return None
+
     def execute_action(self):
         """Execute action and return response as Message."""
         toolset = self._build_wrapper()
@@ -384,6 +419,16 @@ class ComposioYoutubeAPIComponent(ComposioBaseComponent):
                 return {"error": result.get("error", "No response")}
 
             result_data = result.get("data", [])
+            # Handle result_field if get_result_field is True
+            action_data = self._actions_data.get(action_key, {})
+            if action_data.get("get_result_field"):
+                result_field = action_data.get("result_field")
+                if result_field:
+                    found = self._find_key_recursively(result_data, result_field)
+                    if found is not None:
+                        return found
+                return result_data
+            # Default behavior
             if result_data and isinstance(result_data, dict):
                 return result_data[next(iter(result_data))]
             return result_data  # noqa: TRY300
