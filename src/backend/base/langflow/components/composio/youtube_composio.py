@@ -371,7 +371,10 @@ class ComposioYoutubeAPIComponent(ComposioBaseComponent):
                         }
                     }
 
-                return error_info
+                # Flatten error for table rendering
+                if "error" in error_info and isinstance(error_info["error"], dict):
+                    return [error_info["error"]]
+                return [error_info]
 
             result_data = result.get("data", [])
             # Handle result_field if get_result_field is True
@@ -382,13 +385,19 @@ class ComposioYoutubeAPIComponent(ComposioBaseComponent):
                     found = self._find_key_recursively(result_data, result_field)
                     # If found is empty (None, empty list, or empty dict), return the entire data dict
                     if found is None or found in ([], {}):
+                        if isinstance(result_data, dict):
+                            return [result_data]
                         return result_data
                     if found is not None:
+                        if isinstance(found, dict):
+                            return [found]
                         return found
+                if isinstance(result_data, dict):
+                    return [result_data]
                 return result_data
             # Default behavior
             if result_data and isinstance(result_data, dict):
-                return result_data[next(iter(result_data))]
+                return [result_data[next(iter(result_data))]]
             return result_data  # noqa: TRY300
         except Exception as e:
             logger.error(f"Error executing action: {e}")
