@@ -1,3 +1,4 @@
+# flake8: noqa: TRY300
 from typing import Any
 
 from composio import Action
@@ -23,7 +24,6 @@ class ComposioGooglemeetAPIComponent(ComposioBaseComponent):
         "GOOGLEMEET_GET_TRANSCRIPTS_BY_CONFERENCE_RECORD_ID": {
             "display_name": "Get Transcripts By Conference Record ID",
             "action_fields": ["GOOGLEMEET_GET_TRANSCRIPTS_BY_CONFERENCE_RECORD_ID_conferenceRecord_id"],
-
         },
         "GOOGLEMEET_GET_CONFERENCE_RECORD_FOR_MEET": {
             "display_name": "Get Conference Record By Space Name, Meeting Code, Start Time, End Time",
@@ -164,8 +164,7 @@ class ComposioGooglemeetAPIComponent(ComposioBaseComponent):
                     return result_data.get(result_field)
                 # If get_result_field is True but no result_field is specified, return the whole data
                 return result_data
-            else:
-                return result_data
+            return result_data
         except Exception as e:
             logger.error(f"Error executing action: {e}")
             display_name = self.action[0]["name"] if isinstance(self.action, list) and self.action else str(self.action)
