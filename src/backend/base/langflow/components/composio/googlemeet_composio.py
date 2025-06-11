@@ -23,7 +23,7 @@ class ComposioGooglemeetAPIComponent(ComposioBaseComponent):
         "GOOGLEMEET_GET_TRANSCRIPTS_BY_CONFERENCE_RECORD_ID": {
             "display_name": "Get Transcripts By Conference Record ID",
             "action_fields": ["GOOGLEMEET_GET_TRANSCRIPTS_BY_CONFERENCE_RECORD_ID_conferenceRecord_id"],
-            
+
         },
         "GOOGLEMEET_GET_CONFERENCE_RECORD_FOR_MEET": {
             "display_name": "Get Conference Record By Space Name, Meeting Code, Start Time, End Time",
@@ -162,9 +162,8 @@ class ComposioGooglemeetAPIComponent(ComposioBaseComponent):
             if get_result_field:
                 if result_field is not None:
                     return result_data.get(result_field)
-                else:
-                    # If get_result_field is True but no result_field is specified, return the whole data
-                    return result_data
+                # If get_result_field is True but no result_field is specified, return the whole data
+                return result_data
             else:
                 return result_data
         except Exception as e:
