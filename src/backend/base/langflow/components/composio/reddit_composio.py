@@ -10,7 +10,6 @@ from langflow.inputs import (
 )
 from langflow.logging import logger
 
-
 class ComposioRedditAPIComponent(ComposioBaseComponent):
     display_name: str = "Reddit"
     description: str = "Reddit API"
@@ -29,14 +28,18 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
                 "REDDIT_CREATE_REDDIT_POST_title",
                 "REDDIT_CREATE_REDDIT_POST_url",
             ],
+            "get_result_field": True,
+            "result_field": "items",
         },
         "REDDIT_DELETE_REDDIT_COMMENT": {
             "display_name": "Delete Reddit Comment",
             "action_fields": ["REDDIT_DELETE_REDDIT_COMMENT_id"],
+            "get_result_field": False,
         },
         "REDDIT_DELETE_REDDIT_POST": {
             "display_name": "Delete Reddit Post",
             "action_fields": ["REDDIT_DELETE_REDDIT_POST_id"],
+            "get_result_field": False,
         },
         "REDDIT_EDIT_REDDIT_COMMENT_OR_POST": {
             "display_name": "Edit Reddit Comment Or Post",
@@ -44,6 +47,7 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
                 "REDDIT_EDIT_REDDIT_COMMENT_OR_POST_text",
                 "REDDIT_EDIT_REDDIT_COMMENT_OR_POST_thing_id",
             ],
+            "get_result_field": False,
         },
         "REDDIT_GET_USER_FLAIR": {
             "display_name": "Get User Flair",
@@ -57,10 +61,13 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
                 "REDDIT_POST_REDDIT_COMMENT_text",
                 "REDDIT_POST_REDDIT_COMMENT_thing_id",
             ],
+            "get_result_field": False,
         },
         "REDDIT_RETRIEVE_POST_COMMENTS": {
             "display_name": "Retrieve Post Comments",
             "action_fields": ["REDDIT_RETRIEVE_POST_COMMENTS_article"],
+            "get_result_field": True,
+            "result_field": "comments",
         },
         "REDDIT_RETRIEVE_REDDIT_POST": {
             "display_name": "Retrieve Reddit Post",
@@ -68,10 +75,14 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
                 "REDDIT_RETRIEVE_REDDIT_POST_size",
                 "REDDIT_RETRIEVE_REDDIT_POST_subreddit",
             ],
+            "get_result_field": True,
+            "result_field": "posts_list",
         },
         "REDDIT_RETRIEVE_SPECIFIC_COMMENT": {
             "display_name": "Retrieve Specific Comment",
             "action_fields": ["REDDIT_RETRIEVE_SPECIFIC_COMMENT_id"],
+            "get_result_field": True,
+            "result_field": "things",
         },
         "REDDIT_SEARCH_ACROSS_SUBREDDITS": {
             "display_name": "Search Across Subreddits",
@@ -81,6 +92,8 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
                 "REDDIT_SEARCH_ACROSS_SUBREDDITS_search_query",
                 "REDDIT_SEARCH_ACROSS_SUBREDDITS_sort",
             ],
+            "get_result_field": True,
+            "result_field": "search_results",
         },
     }
 
@@ -249,11 +262,9 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
 
         try:
             self._build_action_maps()
-            display_name = (
-                self.action[0]["name"]
-                if isinstance(self.action, list) and self.action
-                else self.action
-            )
+            # Get the display name from the action list
+            display_name = self.action[0]["name"] if isinstance(self.action, list) and self.action else self.action
+            # Use the display_to_key_map to get the action key
             action_key = self._display_to_key_map.get(display_name)
             if not action_key:
                 msg = f"Invalid action: {display_name}"
@@ -272,7 +283,6 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
                         value = bool(value)
 
                     param_name = field.replace(action_key + "_", "")
-
                     params[param_name] = value
 
             result = toolset.execute_action(
@@ -284,6 +294,8 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
 
             result_data = result.get("data", {})
             actions_data = self._actions_data.get(action_key, {})
+            # If 'get_result_field' is True and 'result_field' is specified, extract the data
+            # using 'result_field'. Otherwise, fall back to the entire 'data' field in the response.
             if actions_data.get("get_result_field") and actions_data.get("result_field"):
                 result_data = result_data.get(actions_data.get("result_field"), result.get("data", []))
             if len(result_data) != 1 and not actions_data.get("result_field") and actions_data.get("get_result_field"):  # noqa: E501
