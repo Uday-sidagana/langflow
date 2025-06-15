@@ -78,7 +78,7 @@ class ComposioYoutubeAPIComponent(ComposioBaseComponent):
                 "YOUTUBE_SEARCH_YOU_TUBE_type",
             ],
             "get_result_field": True,
-            "result_field": "response_data",  # Next_page_token
+            "result_field": "response_data",
         },
         "YOUTUBE_SUBSCRIBE_CHANNEL": {
             "display_name": "Subscribe Channel",
@@ -93,8 +93,6 @@ class ComposioYoutubeAPIComponent(ComposioBaseComponent):
             "result_field": "items",
         },
     }
-
-    _list_variables = {"YOUTUBE_UPDATE_VIDEO_tags"}
 
     _all_fields = {field for action_data in _actions_data.values() for field in action_data["action_fields"]}
 
@@ -244,43 +242,6 @@ class ComposioYoutubeAPIComponent(ComposioBaseComponent):
             required=True,
         ),
         MessageTextInput(
-            name="YOUTUBE_UPDATE_VIDEO_categoryId",
-            display_name="Category ID",
-            info="YouTube category ID of the video",
-            show=False,
-        ),
-        MessageTextInput(
-            name="YOUTUBE_UPDATE_VIDEO_description",
-            display_name="Description",
-            info="Description of the video",
-            show=False,
-        ),
-        MessageTextInput(
-            name="YOUTUBE_UPDATE_VIDEO_privacyStatus",
-            display_name="Privacy Status",
-            info="Privacy status of the video. Valid values are 'public', 'private', and 'unlisted'",
-            show=False,
-        ),
-        MessageTextInput(
-            name="YOUTUBE_UPDATE_VIDEO_tags",
-            display_name="Tags",
-            info="List of tags associated with the video",
-            show=False,
-        ),
-        MessageTextInput(
-            name="YOUTUBE_UPDATE_VIDEO_title",
-            display_name="Title",
-            info="The title of the video.",
-            show=False,
-        ),
-        MessageTextInput(
-            name="YOUTUBE_UPDATE_VIDEO_videoId",
-            display_name="Video ID",
-            info="YouTube video ID to be updated",
-            show=False,
-            required=True,
-        ),
-        MessageTextInput(
             name="YOUTUBE_VIDEO_DETAILS_id",
             display_name="ID",
             info="YouTube video ID for which the API should return details",
@@ -333,9 +294,6 @@ class ComposioYoutubeAPIComponent(ComposioBaseComponent):
                     if value is None or value == "":
                         continue
 
-                    if field in self._list_variables and value:
-                        value = [item.strip() for item in value.split(",")]
-
                     param_name = field.replace(action_key + "_", "")
 
                     params[param_name] = value
@@ -371,31 +329,17 @@ class ComposioYoutubeAPIComponent(ComposioBaseComponent):
                         }
                     }
 
-                # Flatten error for table rendering
-                if "error" in error_info and isinstance(error_info["error"], dict):
-                    return [error_info["error"]]
-                return [error_info]
+                return error_info
 
             result_data = result.get("data", [])
-            # Handle result_field if get_result_field is True
             action_data = self._actions_data.get(action_key, {})
             if action_data.get("get_result_field"):
                 result_field = action_data.get("result_field")
                 if result_field:
                     found = self._find_key_recursively(result_data, result_field)
-                    # If found is empty (None, empty list, or empty dict), return the entire data dict
-                    if found is None or found in ([], {}):
-                        if isinstance(result_data, dict):
-                            return [result_data]
-                        return result_data
                     if found is not None:
-                        if isinstance(found, dict):
-                            return [found]
                         return found
-                if isinstance(result_data, dict):
-                    return [result_data]
                 return result_data
-            # Default behavior
             if result_data and isinstance(result_data, dict):
                 return [result_data[next(iter(result_data))]]
             return result_data  # noqa: TRY300
