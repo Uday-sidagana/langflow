@@ -1,4 +1,5 @@
 from typing import Any
+import json
 
 from composio import Action
 
@@ -76,7 +77,7 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
                 "REDDIT_RETRIEVE_REDDIT_POST_subreddit",
             ],
             "get_result_field": True,
-            "result_field": "posts_list",
+            "result_field": "data",
         },
         "REDDIT_RETRIEVE_SPECIFIC_COMMENT": {
             "display_name": "Retrieve Specific Comment",
@@ -93,7 +94,7 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
                 "REDDIT_SEARCH_ACROSS_SUBREDDITS_sort",
             ],
             "get_result_field": True,
-            "result_field": "search_results",
+            "result_field": "data",
         },
     }
 
@@ -256,15 +257,42 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
         ),
     ]
 
+    def _find_key_recursively(self, data, key):
+        """Recursively search for a key in nested dicts/lists and return its value if found."""
+        if isinstance(data, dict):
+            if key in data:
+                return data[key]
+            for v in data.values():
+                found = self._find_key_recursively(v, key)
+                if found is not None:
+                    return found
+        elif isinstance(data, list):
+            for item in data:
+                found = self._find_key_recursively(item, key)
+                if found is not None:
+                    return found
+        return None
+
+    def _convert_pandas_to_python(self, obj):
+        """Recursively convert pandas objects to plain Python objects."""
+        if hasattr(obj, 'to_dict'):  # pandas DataFrame
+            return obj.to_dict('records')
+        elif hasattr(obj, 'tolist'):  # pandas Series
+            return obj.tolist()
+        elif isinstance(obj, dict):
+            return {k: self._convert_pandas_to_python(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [self._convert_pandas_to_python(item) for item in obj]
+        else:
+            return obj
+
     def execute_action(self):
         """Execute action and return response as Message."""
         toolset = self._build_wrapper()
 
         try:
             self._build_action_maps()
-            # Get the display name from the action list
             display_name = self.action[0]["name"] if isinstance(self.action, list) and self.action else self.action
-            # Use the display_to_key_map to get the action key
             action_key = self._display_to_key_map.get(display_name)
             if not action_key:
                 msg = f"Invalid action: {display_name}"
@@ -279,9 +307,6 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
                     if value is None or value == "":
                         continue
 
-                    if field in self._bool_variables:
-                        value = bool(value)
-
                     param_name = field.replace(action_key + "_", "")
                     params[param_name] = value
 
@@ -290,25 +315,50 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
                 params=params,
             )
             if not result.get("successful"):
-                return {"error": result.get("error", "No response")}
+                message = result.get("data", {}).get("message", {})
 
-            result_data = result.get("data", {})
-            actions_data = self._actions_data.get(action_key, {})
-            # If 'get_result_field' is True and 'result_field' is specified, extract the data
-            # using 'result_field'. Otherwise, fall back to the entire 'data' field in the response.
-            if actions_data.get("get_result_field") and actions_data.get("result_field"):
-                result_data = result_data.get(actions_data.get("result_field"), result.get("data", []))
-            if len(result_data) != 1 and not actions_data.get("result_field") and actions_data.get("get_result_field"):  # noqa: E501
-                msg = f"Expected a dict with a single key, got {len(result_data)} keys: {result_data.keys()}"
-                raise ValueError(msg)
-            return result_data
+                error_info = {"error": result.get("error", "No response")}
+                if isinstance(message, str):
+                    try:
+                        parsed_message = json.loads(message)
+                        if isinstance(parsed_message, dict) and "error" in parsed_message:
+                            error_data = parsed_message["error"]
+                            error_info = {
+                                "error": {
+                                    "code": error_data.get("code", "Unknown"),
+                                    "message": error_data.get("message", "No error message"),
+                                }
+                            }
+                    except (json.JSONDecodeError, KeyError) as e:
+                        logger.error(f"Failed to parse error message as JSON: {e}")
+                        error_info = {"error": str(message)}
+                elif isinstance(message, dict) and "error" in message:
+                    error_data = message["error"]
+                    error_info = {
+                        "error": {
+                            "code": error_data.get("code", "Unknown"),
+                            "message": error_data.get("message", "No error message"),
+                        }
+                    }
+
+                return error_info
+
+            result_data = result.get("data", [])
+            action_data = self._actions_data.get(action_key, {})
+            if action_data.get("get_result_field"):
+                result_field = action_data.get("result_field")
+                if result_field:
+                    found = self._find_key_recursively(result_data, result_field)
+                    if found is not None:
+                        return self._convert_pandas_to_python(found)
+                return self._convert_pandas_to_python(result_data)
+            if result_data and isinstance(result_data, dict):
+                converted_data = self._convert_pandas_to_python(result_data)
+                return [converted_data[next(iter(converted_data))]]
+            return self._convert_pandas_to_python(result_data)
         except Exception as e:
             logger.error(f"Error executing action: {e}")
-            display_name = (
-                self.action[0]["name"]
-                if isinstance(self.action, list) and self.action
-                else str(self.action)
-            )
+            display_name = self.action[0]["name"] if isinstance(self.action, list) and self.action else str(self.action)
             msg = f"Failed to execute {display_name}: {e!s}"
             raise ValueError(msg) from e
 
