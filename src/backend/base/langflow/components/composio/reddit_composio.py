@@ -1,5 +1,6 @@
-from typing import Any
+# noqa: E501
 import json
+from typing import Any
 
 from composio import Action
 
@@ -10,6 +11,7 @@ from langflow.inputs import (
     MessageTextInput,
 )
 from langflow.logging import logger
+
 
 class ComposioRedditAPIComponent(ComposioBaseComponent):
     display_name: str = "Reddit"
@@ -275,16 +277,15 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
 
     def _convert_pandas_to_python(self, obj):
         """Recursively convert pandas objects to plain Python objects."""
-        if hasattr(obj, 'to_dict'):  # pandas DataFrame
-            return obj.to_dict('records')
-        elif hasattr(obj, 'tolist'):  # pandas Series
+        if hasattr(obj, "to_dict"):  # pandas DataFrame
+            return obj.to_dict("records")
+        if hasattr(obj, "tolist"):  # pandas Series
             return obj.tolist()
-        elif isinstance(obj, dict):
+        if isinstance(obj, dict):
             return {k: self._convert_pandas_to_python(v) for k, v in obj.items()}
-        elif isinstance(obj, list):
+        if isinstance(obj, list):
             return [self._convert_pandas_to_python(item) for item in obj]
-        else:
-            return obj
+        return obj
 
     def execute_action(self):
         """Execute action and return response as Message."""
@@ -314,12 +315,12 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
                 action=enum_name,
                 params=params,
             )
-            
+
             # Ensure result is a dictionary
             if not isinstance(result, dict):
                 logger.error(f"Unexpected result type: {type(result)}, value: {result}")
                 return {"error": f"Unexpected result type: {type(result)}"}
-            
+
             if not result.get("successful"):
                 message = result.get("data", {})
                 if isinstance(message, dict):
@@ -354,21 +355,21 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
                 return error_info
 
             result_data = result.get("data", [])
-            
+
             # Ensure result_data is properly structured
             if result_data is None:
                 result_data = []
             elif isinstance(result_data, (int, str, float, bool)):
                 logger.warning(f"Result data is a primitive type: {type(result_data)}, value: {result_data}")
                 result_data = [{"value": result_data}]
-            
+
             action_data = self._actions_data.get(action_key, {})
-            
+
             def ensure_dict_list(data):
                 """Ensure data is a list of dictionaries."""
                 if isinstance(data, dict):
                     return [data]
-                elif isinstance(data, list):
+                if isinstance(data, list):
                     # Ensure all items in the list are dictionaries
                     dict_list = []
                     for item in data:
@@ -378,10 +379,9 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
                             # Convert non-dict items to dict format
                             dict_list.append({"value": item})
                     return dict_list
-                else:
-                    # Convert single non-dict value to dict format
-                    return [{"value": data}]
-            
+                # Convert single non-dict value to dict format
+                return [{"value": data}]
+
             def convert_posts_list_to_indexed_dict(data):
                 """Convert posts_list array to indexed dictionary."""
                 if isinstance(data, list):
@@ -391,7 +391,7 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
                         indexed_dict[str(i)] = item
                     return [indexed_dict]  # Return as list containing the indexed dict
                 return ensure_dict_list(data)
-            
+
             if action_data.get("get_result_field"):
                 result_field = action_data.get("result_field")
                 if result_field:
@@ -402,18 +402,18 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
                         if result_field in ["posts_list", "children"]:
                             return convert_posts_list_to_indexed_dict(converted)
                         return ensure_dict_list(converted)
-                
+
                 # If result_field not found or empty, return "data" field
                 converted_data = self._convert_pandas_to_python(result_data)
                 return ensure_dict_list(converted_data)
-            
+
             if result_data and isinstance(result_data, dict):
                 converted_data = self._convert_pandas_to_python(result_data)
                 if converted_data:
                     first_key = next(iter(converted_data))
                     return ensure_dict_list(converted_data[first_key])
                 return []
-            
+
             converted_data = self._convert_pandas_to_python(result_data)
             return ensure_dict_list(converted_data)
         except Exception as e:
