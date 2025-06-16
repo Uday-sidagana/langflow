@@ -1,4 +1,3 @@
-# noqa: E501
 import json
 from typing import Any
 
@@ -100,11 +99,7 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
         },
     }
 
-    _all_fields = {
-        field
-        for action_data in _actions_data.values()
-        for field in action_data["action_fields"]
-    }
+    _all_fields = {field for action_data in _actions_data.values() for field in action_data["action_fields"]}
 
     _bool_variables = {
         "REDDIT_SEARCH_ACROSS_SUBREDDITS_restrict_sr",
@@ -115,14 +110,14 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
         MessageTextInput(
             name="REDDIT_CREATE_REDDIT_POST_flair_id",
             display_name="Flair Id",
-            info="The ID of the flair to apply to the post. Use the 'REDDIT_GET_USER_FLAIR' action to find available flair IDs for the specified subreddit.",
+            info="The ID of the flair to apply to the post. Use the 'REDDIT_GET_USER_FLAIR' action to find available flair IDs for the specified subreddit.",  # noqa: E501
             show=False,
             required=True,
         ),
         MessageTextInput(
             name="REDDIT_CREATE_REDDIT_POST_kind",
             display_name="Kind",
-            info="The type of the post. Use 'self' for a text-based post or 'link' for a post that links to an external URL.",
+            info="The type of the post. Use 'self' for a text-based post or 'link' for a post that links to an external URL.",  # noqa: E501
             show=False,
             required=True,
         ),
@@ -155,14 +150,14 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
         MessageTextInput(
             name="REDDIT_DELETE_REDDIT_COMMENT_id",
             display_name="Id",
-            info="The full 'thing ID' (fullname, e.g., 't1_c0s4w1c') of the comment to delete; typically starts with 't1_'.",
+            info="The full 'thing ID' (fullname, e.g., 't1_c0s4w1c') of the comment to delete; typically starts with 't1_'.",  # noqa: E501
             show=False,
             required=True,
         ),
         MessageTextInput(
             name="REDDIT_DELETE_REDDIT_POST_id",
             display_name="Id",
-            info="The full name (fullname) of the Reddit post to be deleted. This ID must start with 't3_' followed by the post's unique base36 identifier.",
+            info="The full name (fullname) of the Reddit post to be deleted. This ID must start with 't3_' followed by the post's unique base36 identifier.",  # noqa: E501
             show=False,
             required=True,
         ),
@@ -176,7 +171,7 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
         MessageTextInput(
             name="REDDIT_EDIT_REDDIT_COMMENT_OR_POST_thing_id",
             display_name="Thing Id",
-            info="The full name (fullname) of the comment or self-post to edit. This is a combination of a prefix (e.g., 't1_' for comment, 't3_' for post) and the item's ID.",
+            info="The full name (fullname) of the comment or self-post to edit. This is a combination of a prefix (e.g., 't1_' for comment, 't3_' for post) and the item's ID.",  # noqa: E501
             show=False,
             required=True,
         ),
@@ -197,28 +192,28 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
         MessageTextInput(
             name="REDDIT_POST_REDDIT_COMMENT_thing_id",
             display_name="Thing Id",
-            info="The ID of the parent post (link) or comment, prefixed with 't3_' for a post (e.g., 't3_10omtdx') or 't1_' for a comment (e.g., 't1_h2g9w8l').",
+            info="The ID of the parent post (link) or comment, prefixed with 't3_' for a post (e.g., 't3_10omtdx') or 't1_' for a comment (e.g., 't1_h2g9w8l').",  # noqa: E501
             show=False,
             required=True,
         ),
         MessageTextInput(
             name="REDDIT_RETRIEVE_POST_COMMENTS_article",
             display_name="Article",
-            info="Base_36 ID of the Reddit post (e.g., 'q5u7q5'), typically found in the post's URL and not including the 't3_' prefix.",
+            info="Base_36 ID of the Reddit post (e.g., 'q5u7q5'), typically found in the post's URL and not including the 't3_' prefix.",  # noqa: E501
             show=False,
             required=True,
         ),
         IntInput(
             name="REDDIT_RETRIEVE_REDDIT_POST_size",
             display_name="Size",
-            info="The maximum number of posts to return. Default is 5. Set to 0 to retrieve all available posts (or the maximum allowed by the Reddit API for a single request, typically up to 100 for this type of listing).",
+            info="The maximum number of posts to return. Default is 5. Set to 0 to retrieve all available posts (or the maximum allowed by the Reddit API for a single request, typically up to 100 for this type of listing).",  # noqa: E501
             show=False,
             value=5,
         ),
         MessageTextInput(
             name="REDDIT_RETRIEVE_REDDIT_POST_subreddit",
             display_name="Subreddit",
-            info="The name of the subreddit from which to retrieve posts (e.g., 'popular', 'pics'). Do not include 'r/'.",
+            info="The name of the subreddit from which to retrieve posts (e.g., 'popular', 'pics'). Do not include 'r/'.",  # noqa: E501
             show=False,
             required=True,
         ),
@@ -239,7 +234,7 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
         BoolInput(
             name="REDDIT_SEARCH_ACROSS_SUBREDDITS_restrict_sr",
             display_name="Restrict Sr",
-            info="If True (default), confines the search to posts and comments within subreddits. If False, the search scope is broader and may include matching subreddit names or other Reddit entities.",
+            info="If True (default), confines the search to posts and comments within subreddits. If False, the search scope is broader and may include matching subreddit names or other Reddit entities.",  # noqa: E501
             show=False,
             value=True,
         ),
@@ -253,7 +248,7 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
         MessageTextInput(
             name="REDDIT_SEARCH_ACROSS_SUBREDDITS_sort",
             display_name="Sort",
-            info="The criterion for sorting search results. 'relevance' (default) sorts by relevance to the query. 'new' sorts by newest first. 'top' sorts by highest score (typically all-time). 'comments' sorts by the number of comments.",
+            info="The criterion for sorting search results. 'relevance' (default) sorts by relevance to the query. 'new' sorts by newest first. 'top' sorts by highest score (typically all-time). 'comments' sorts by the number of comments.",  # noqa: E501
             show=False,
             value="relevance",
         ),
@@ -323,10 +318,7 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
 
             if not result.get("successful"):
                 message = result.get("data", {})
-                if isinstance(message, dict):
-                    message = message.get("message", {})
-                else:
-                    message = str(message)
+                message = message.get("message", {}) if isinstance(message, dict) else str(message)
 
                 error_info = {"error": result.get("error", "No response")}
                 if isinstance(message, str):
@@ -359,7 +351,7 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
             # Ensure result_data is properly structured
             if result_data is None:
                 result_data = []
-            elif isinstance(result_data, (int, str, float, bool)):
+            elif isinstance(result_data, int | str | float | bool):
                 logger.warning(f"Result data is a primitive type: {type(result_data)}, value: {result_data}")
                 result_data = [{"value": result_data}]
 
@@ -422,9 +414,7 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
             msg = f"Failed to execute {display_name}: {e!s}"
             raise ValueError(msg) from e
 
-    def update_build_config(
-        self, build_config: dict, field_value: Any, field_name: str | None = None
-    ) -> dict:
+    def update_build_config(self, build_config: dict, field_value: Any, field_name: str | None = None) -> dict:
         return super().update_build_config(build_config, field_value, field_name)
 
     def set_default_tools(self):
