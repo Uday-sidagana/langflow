@@ -77,7 +77,7 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
                 "REDDIT_RETRIEVE_REDDIT_POST_subreddit",
             ],
             "get_result_field": True,
-            "result_field": "data",
+            "result_field": "posts_list",
         },
         "REDDIT_RETRIEVE_SPECIFIC_COMMENT": {
             "display_name": "Retrieve Specific Comment",
@@ -94,7 +94,7 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
                 "REDDIT_SEARCH_ACROSS_SUBREDDITS_sort",
             ],
             "get_result_field": True,
-            "result_field": "data",
+            "result_field": "children",
         },
     }
 
@@ -314,8 +314,18 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
                 action=enum_name,
                 params=params,
             )
+            
+            # Ensure result is a dictionary
+            if not isinstance(result, dict):
+                logger.error(f"Unexpected result type: {type(result)}, value: {result}")
+                return {"error": f"Unexpected result type: {type(result)}"}
+            
             if not result.get("successful"):
-                message = result.get("data", {}).get("message", {})
+                message = result.get("data", {})
+                if isinstance(message, dict):
+                    message = message.get("message", {})
+                else:
+                    message = str(message)
 
                 error_info = {"error": result.get("error", "No response")}
                 if isinstance(message, str):
@@ -344,18 +354,68 @@ class ComposioRedditAPIComponent(ComposioBaseComponent):
                 return error_info
 
             result_data = result.get("data", [])
+            
+            # Ensure result_data is properly structured
+            if result_data is None:
+                result_data = []
+            elif isinstance(result_data, (int, str, float, bool)):
+                logger.warning(f"Result data is a primitive type: {type(result_data)}, value: {result_data}")
+                result_data = [{"value": result_data}]
+            
             action_data = self._actions_data.get(action_key, {})
+            
+            def ensure_dict_list(data):
+                """Ensure data is a list of dictionaries."""
+                if isinstance(data, dict):
+                    return [data]
+                elif isinstance(data, list):
+                    # Ensure all items in the list are dictionaries
+                    dict_list = []
+                    for item in data:
+                        if isinstance(item, dict):
+                            dict_list.append(item)
+                        else:
+                            # Convert non-dict items to dict format
+                            dict_list.append({"value": item})
+                    return dict_list
+                else:
+                    # Convert single non-dict value to dict format
+                    return [{"value": data}]
+            
+            def convert_posts_list_to_indexed_dict(data):
+                """Convert posts_list array to indexed dictionary."""
+                if isinstance(data, list):
+                    # Convert list to dictionary with indices as keys
+                    indexed_dict = {}
+                    for i, item in enumerate(data):
+                        indexed_dict[str(i)] = item
+                    return [indexed_dict]  # Return as list containing the indexed dict
+                return ensure_dict_list(data)
+            
             if action_data.get("get_result_field"):
                 result_field = action_data.get("result_field")
                 if result_field:
                     found = self._find_key_recursively(result_data, result_field)
-                    if found is not None:
-                        return self._convert_pandas_to_python(found)
-                return self._convert_pandas_to_python(result_data)
+                    if found is not None and found != []:
+                        converted = self._convert_pandas_to_python(found)
+                        # Special case: if result_field is "posts_list" or "children", convert to indexed dict
+                        if result_field in ["posts_list", "children"]:
+                            return convert_posts_list_to_indexed_dict(converted)
+                        return ensure_dict_list(converted)
+                
+                # If result_field not found or empty, return "data" field
+                converted_data = self._convert_pandas_to_python(result_data)
+                return ensure_dict_list(converted_data)
+            
             if result_data and isinstance(result_data, dict):
                 converted_data = self._convert_pandas_to_python(result_data)
-                return [converted_data[next(iter(converted_data))]]
-            return self._convert_pandas_to_python(result_data)
+                if converted_data:
+                    first_key = next(iter(converted_data))
+                    return ensure_dict_list(converted_data[first_key])
+                return []
+            
+            converted_data = self._convert_pandas_to_python(result_data)
+            return ensure_dict_list(converted_data)
         except Exception as e:
             logger.error(f"Error executing action: {e}")
             display_name = self.action[0]["name"] if isinstance(self.action, list) and self.action else str(self.action)
