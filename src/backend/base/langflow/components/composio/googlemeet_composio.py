@@ -19,7 +19,6 @@ class ComposioGooglemeetAPIComponent(ComposioBaseComponent):
     documentation: str = "https://docs.composio.dev"
     app_name: str = "googlemeet"
 
-    # Google Meet specific actions
     _actions_data: dict = {
         "GOOGLEMEET_GET_TRANSCRIPTS_BY_CONFERENCE_RECORD_ID": {
             "display_name": "Get Transcripts By Conference Record ID",
