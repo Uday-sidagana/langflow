@@ -1,3 +1,4 @@
+import { GOOGLEDRIVEIcon } from "../icons/GoogleDrive";
 import { BotMessageSquareIcon } from "@/icons/BotMessageSquare";
 import { GradientSave } from "@/icons/GradientSparkles";
 import { fontAwesomeIcons, isFontAwesomeIcon } from "@/icons/fontAwesomeIcons";
@@ -229,6 +230,7 @@ export const SIDEBAR_CATEGORIES = [
 ];
 
 export const SIDEBAR_BUNDLES = [
+  { display_name: "GoogleDrive", name: "googledrive", icon: "GoogleDrive" },
   { display_name: "Outlook", name: "outlook", icon: "Outlook" },
   {
     display_name: "Language Models",
@@ -342,6 +344,7 @@ export const nodeIconToDisplayIconMap: Record<string, string> = {
   ChatInput: "MessagesSquare",
   ChatOutput: "MessagesSquare",
   //Integration Icons
+  GoogleDrive: "GoogleDrive",
   Outlook: "Outlook",
   AIML: "AI/ML",
   AgentQL: "AgentQL",
