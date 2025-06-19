@@ -12,9 +12,9 @@ from langflow.logging import logger
 
 
 class ComposioGOOGLEDRIVEAPIComponent(ComposioBaseComponent):
-    display_name: str = "GOOGLEDRIVE"
+    display_name: str = "GoogleDrive"
     description: str = "GOOGLEDRIVE API"
-    icon = "GOOGLEDRIVE"
+    icon = "GoogleDrive"
     documentation: str = "https://docs.composio.dev"
     app_name = "googledrive"
     
@@ -26,7 +26,8 @@ class ComposioGOOGLEDRIVEAPIComponent(ComposioBaseComponent):
         "GOOGLEDRIVE_ADD_FILE_SHARING_PREFERENCE_file_id",
         "GOOGLEDRIVE_ADD_FILE_SHARING_PREFERENCE_role",
         "GOOGLEDRIVE_ADD_FILE_SHARING_PREFERENCE_type"
-      ]
+      ],
+      
     },
     "GOOGLEDRIVE_COPY_FILE": {
       "display_name": "Copy File",
@@ -62,7 +63,7 @@ class ComposioGOOGLEDRIVEAPIComponent(ComposioBaseComponent):
       "action_fields": [
         "GOOGLEDRIVE_DOWNLOAD_FILE_file_id",
         "GOOGLEDRIVE_DOWNLOAD_FILE_mime_type"
-      ]
+      ],
     },
     "GOOGLEDRIVE_EDIT_FILE": {
       "display_name": "Edit File",
@@ -70,7 +71,9 @@ class ComposioGOOGLEDRIVEAPIComponent(ComposioBaseComponent):
         "GOOGLEDRIVE_EDIT_FILE_content",
         "GOOGLEDRIVE_EDIT_FILE_file_id",
         "GOOGLEDRIVE_EDIT_FILE_mime_type"
-      ]
+      ],
+      "get_result_field": True,
+      "result_field": "data",
     },
     "GOOGLEDRIVE_FIND_FILE": {
       "display_name": "Find Files",
@@ -88,7 +91,9 @@ class ComposioGOOGLEDRIVEAPIComponent(ComposioBaseComponent):
         "GOOGLEDRIVE_FIND_FILE_page_token",
         "GOOGLEDRIVE_FIND_FILE_starred",
         "GOOGLEDRIVE_FIND_FILE_supports_all_drives"
-      ]
+      ],
+       "get_result_field": True,
+      "result_field": "files",
     },
     "GOOGLEDRIVE_FIND_FOLDER": {
       "display_name": "Find Folder",
@@ -100,7 +105,9 @@ class ComposioGOOGLEDRIVEAPIComponent(ComposioBaseComponent):
         "GOOGLEDRIVE_FIND_FOLDER_name_exact",
         "GOOGLEDRIVE_FIND_FOLDER_name_not_contains",
         "GOOGLEDRIVE_FIND_FOLDER_starred"
-      ]
+      ],
+      "get_result_field": True,
+      "result_field": "folders",
     },
     "GOOGLEDRIVE_PARSE_FILE": {
       "display_name": "Export Or Download A File",
@@ -389,6 +396,22 @@ class ComposioGOOGLEDRIVEAPIComponent(ComposioBaseComponent):
         
     ]
     
+    def _find_key_recursively(self, data, key):
+        """Recursively search for a key in nested dicts/lists and return its value if found."""
+        if isinstance(data, dict):
+            if key in data:
+                return data[key]
+            for v in data.values():
+                found = self._find_key_recursively(v, key)
+                if found is not None:
+                    return found
+        elif isinstance(data, list):
+            for item in data:
+                found = self._find_key_recursively(item, key)
+                if found is not None:
+                    return found
+        return None
+    
     def execute_action(self):
         """Execute action and return response as Message."""
         toolset = self._build_wrapper()
@@ -422,9 +445,46 @@ class ComposioGOOGLEDRIVEAPIComponent(ComposioBaseComponent):
                 params=params,
             )
             if not result.get("successful"):
-                return {"error": result.get("error", "No response")}
+                message = result.get("data", {}).get("message", {})
 
-            return result.get("data", [])
+                error_info = {"error": result.get("error", "No response")}
+                if isinstance(message, str):
+                    try:
+                        parsed_message = json.loads(message)
+                        if isinstance(parsed_message, dict) and "error" in parsed_message:
+                            error_data = parsed_message["error"]
+                            error_info = {
+                                "error": {
+                                    "code": error_data.get("code", "Unknown"),
+                                    "message": error_data.get("message", "No error message"),
+                                }
+                            }
+                    except (json.JSONDecodeError, KeyError) as e:
+                        logger.error(f"Failed to parse error message as JSON: {e}")
+                        error_info = {"error": str(message)}
+                elif isinstance(message, dict) and "error" in message:
+                    error_data = message["error"]
+                    error_info = {
+                        "error": {
+                            "code": error_data.get("code", "Unknown"),
+                            "message": error_data.get("message", "No error message"),
+                        }
+                    }
+
+                return error_info
+
+            result_data = result.get("data", [])
+            action_data = self._actions_data.get(action_key, {})
+            if action_data.get("get_result_field"):
+                result_field = action_data.get("result_field")
+                if result_field:
+                    found = self._find_key_recursively(result_data, result_field)
+                    if found is not None and found != [] and found != {}:
+                        return found
+                # Fall back to default method if result field extraction returns empty
+            if result_data and isinstance(result_data, dict):
+                return [result_data[next(iter(result_data))]]
+            return result_data  # noqa: TRY300
         except Exception as e:
             logger.error(f"Error executing action: {e}")
             display_name = self.action[0]["name"] if isinstance(self.action, list) and self.action else str(self.action)
@@ -436,6 +496,6 @@ class ComposioGOOGLEDRIVEAPIComponent(ComposioBaseComponent):
 
     def set_default_tools(self):
         self._default_tools = {
-            self.sanitize_action_name("<default action 1>").replace(" ", "-"),
-            self.sanitize_action_name("<default action 2>").replace(" ", "-"),
+            self.sanitize_action_name("GOOGLEDRIVE_FIND_FILE").replace(" ", "-"),
+            self.sanitize_action_name("GOOGLEDRIVE_CREATE_FILE_FROM_TEXT").replace(" ", "-"),
         }
