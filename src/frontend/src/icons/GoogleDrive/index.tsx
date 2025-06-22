@@ -1,9 +1,9 @@
 import React, { forwardRef } from "react";
-import SvgGoogleDrive from "./GoogleDrive";
+import GoogleDriveIconSVG from "./GoogleDrive.jsx";
 
-export const GoogleDriveIcon = forwardRef<
+export const GOOGLEDRIVEIcon = forwardRef<
   SVGSVGElement,
   React.PropsWithChildren<{}>
 >((props, ref) => {
-  return <SvgGoogleDrive ref={ref} {...props} />;
+  return <GoogleDriveIconSVG ref={ref} {...props} />;
 });

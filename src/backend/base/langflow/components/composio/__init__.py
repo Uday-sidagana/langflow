@@ -4,6 +4,7 @@ from .gmail_composio import ComposioGmailAPIComponent
 from .googlecalendar_composio import ComposioGoogleCalendarAPIComponent
 from .outlook_composio import ComposioOutlookAPIComponent
 from .slack_composio import ComposioSlackAPIComponent
+from .googledrive_composio import ComposioGoogleDriveAPIComponent  
 
 __all__ = [
     "ComposioAPIComponent",
@@ -12,4 +13,5 @@ __all__ = [
     "ComposioGoogleCalendarAPIComponent",
     "ComposioOutlookAPIComponent",
     "ComposioSlackAPIComponent",
+    "ComposioGoogleDriveAPIComponent", 
 ]
