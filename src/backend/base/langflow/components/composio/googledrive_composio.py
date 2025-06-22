@@ -1,3 +1,4 @@
+import json
 from typing import Any
 
 from composio import Action
@@ -11,7 +12,7 @@ from langflow.inputs import (
 from langflow.logging import logger
 
 
-class ComposioGOOGLEDRIVEAPIComponent(ComposioBaseComponent):
+class ComposioGoogleDriveAPIComponent(ComposioBaseComponent):
     display_name: str = "GoogleDrive"
     description: str = "GOOGLEDRIVE API"
     icon = "GoogleDrive"
@@ -497,5 +498,5 @@ class ComposioGOOGLEDRIVEAPIComponent(ComposioBaseComponent):
     def set_default_tools(self):
         self._default_tools = {
             self.sanitize_action_name("GOOGLEDRIVE_FIND_FILE").replace(" ", "-"),
-            self.sanitize_action_name("GOOGLEDRIVE_CREATE_FILE_FROM_TEXT").replace(" ", "-"),
+            self.sanitize_action_name("GOOGLEDRIVE_FIND_FOLDER").replace(" ", "-"),
         }
