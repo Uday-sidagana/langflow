@@ -11,75 +11,75 @@ from langflow.logging import logger
 
 
 class ComposioDiscordAPIComponent(ComposioBaseComponent):
-    display_name: str = "Discord"
+    display_name: str = "Discord bot"
     description: str = "Discord API"
     icon = "Discord"
     documentation: str = "https://docs.composio.dev"
-    app_name = "discord"
+    app_name = "discordbot"
     
     _actions_data: dict = {
-        "DISCORD_ADD_GUILD_MEMBER_ROLE": {
+        "DISCORDBOT_ADD_GUILD_MEMBER_ROLE": {
       "display_name": "Assign role to guild member",
       "action_fields": [
-        "DISCORD_ADD_GUILD_MEMBER_ROLE_guild_id",
-        "DISCORD_ADD_GUILD_MEMBER_ROLE_role_id",
-        "DISCORD_ADD_GUILD_MEMBER_ROLE_user_id"
+        "DISCORDBOT_ADD_GUILD_MEMBER_ROLE_guild_id",
+        "DISCORDBOT_ADD_GUILD_MEMBER_ROLE_role_id",
+        "DISCORDBOT_ADD_GUILD_MEMBER_ROLE_user_id"
       ]
     },
-    "DISCORD_CREATE_DM": {
+    "DISCORDBOT_CREATE_DM": {
       "display_name": "Initiate user channel with recipient",
       "action_fields": [
-        "DISCORD_CREATE_DM_access_tokens",
-        "DISCORD_CREATE_DM_nicks",
-        "DISCORD_CREATE_DM_recipient_id"
+        "DISCORDBOT_CREATE_DM_access_tokens",
+        "DISCORDBOT_CREATE_DM_nicks",
+        "DISCORDBOT_CREATE_DM_recipient_id"
       ]
     },
-    "DISCORD_CREATE_GUILD": {
+    "DISCORDBOT_CREATE_GUILD": {
       "display_name": "Create new guild object",
       "action_fields": [
-        "DISCORD_CREATE_GUILD_afk_channel_id",
-        "DISCORD_CREATE_GUILD_afk_timeout",
-        "DISCORD_CREATE_GUILD_channels",
-        "DISCORD_CREATE_GUILD_default_message_notifications",
-        "DISCORD_CREATE_GUILD_description",
-        "DISCORD_CREATE_GUILD_explicit_content_filter",
-        "DISCORD_CREATE_GUILD_icon",
-        "DISCORD_CREATE_GUILD_name",
-        "DISCORD_CREATE_GUILD_preferred_locale",
-        "DISCORD_CREATE_GUILD_region",
-        "DISCORD_CREATE_GUILD_roles",
-        "DISCORD_CREATE_GUILD_system_channel_flags",
-        "DISCORD_CREATE_GUILD_system_channel_id",
-        "DISCORD_CREATE_GUILD_verification_level"
+        "DISCORDBOT_CREATE_GUILD_afk_channel_id",
+        "DISCORDBOT_CREATE_GUILD_afk_timeout",
+        "DISCORDBOT_CREATE_GUILD_channels",
+        "DISCORDBOT_CREATE_GUILD_default_message_notifications",
+        "DISCORDBOT_CREATE_GUILD_description",
+        "DISCORDBOT_CREATE_GUILD_explicit_content_filter",
+        "DISCORDBOT_CREATE_GUILD_icon",
+        "DISCORDBOT_CREATE_GUILD_name",
+        "DISCORDBOT_CREATE_GUILD_preferred_locale",
+        "DISCORDBOT_CREATE_GUILD_region",
+        "DISCORDBOT_CREATE_GUILD_roles",
+        "DISCORDBOT_CREATE_GUILD_system_channel_flags",
+        "DISCORDBOT_CREATE_GUILD_system_channel_id",
+        "DISCORDBOT_CREATE_GUILD_verification_level"
       ]
     },
-    "DISCORD_DELETE_GUILD_MEMBER_ROLE": {
+    "DISCORDBOT_DELETE_GUILD_MEMBER_ROLE": {
       "display_name": "Delete guild member role",
       "action_fields": [
-        "DISCORD_DELETE_GUILD_MEMBER_ROLE_guild_id",
-        "DISCORD_DELETE_GUILD_MEMBER_ROLE_role_id",
-        "DISCORD_DELETE_GUILD_MEMBER_ROLE_user_id"
+        "DISCORDBOT_DELETE_GUILD_MEMBER_ROLE_guild_id",
+        "DISCORDBOT_DELETE_GUILD_MEMBER_ROLE_role_id",
+        "DISCORDBOT_DELETE_GUILD_MEMBER_ROLE_user_id"
       ]
     },
-    "DISCORD_GET_USER": {
+    "DISCORDBOT_GET_USER": {
       "display_name": "Retrieve user by id",
       "action_fields": [
-        "DISCORD_GET_USER_user_id"
+        "DISCORDBOT_GET_USER_user_id"
       ]
     },
-    "DISCORD_LIST_GUILD_MEMBERS": {
+    "DISCORDBOT_LIST_GUILD_MEMBERS": {
       "display_name": "Get guild members",
       "action_fields": [
-        "DISCORD_LIST_GUILD_MEMBERS_after",
-        "DISCORD_LIST_GUILD_MEMBERS_guild_id",
-        "DISCORD_LIST_GUILD_MEMBERS_limit"
+        "DISCORDBOT_LIST_GUILD_MEMBERS_after",
+        "DISCORDBOT_LIST_GUILD_MEMBERS_guild_id",
+        "DISCORDBOT_LIST_GUILD_MEMBERS_limit"
       ]
     }
     }
     
     _list_variables = {
-        "DISCORD_CREATE_DM_access_tokens",
-        "DISCORD_CREATE_GUILD_roles"
+        "DISCORDBOT_CREATE_DM_access_tokens",
+        "DISCORDBOT_CREATE_GUILD_roles"
     }
     
     _all_fields = {field for action_data in _actions_data.values() for field in action_data["action_fields"]}
@@ -89,172 +89,172 @@ class ComposioDiscordAPIComponent(ComposioBaseComponent):
     inputs = [
         *ComposioBaseComponent._base_inputs,
         MessageTextInput(
-        name="DISCORD_DELETE_GUILD_MEMBER_ROLE_guild_id",
+        name="DISCORDBOT_DELETE_GUILD_MEMBER_ROLE_guild_id",
         display_name="Guild Id",
         info="Guild Id",
         show=False,
         required=True,
     ),
     MessageTextInput(
-        name="DISCORD_DELETE_GUILD_MEMBER_ROLE_role_id",
+        name="DISCORDBOT_DELETE_GUILD_MEMBER_ROLE_role_id",
         display_name="Role Id",
         info="Role Id",
         show=False,
         required=True,
     ),
     MessageTextInput(
-        name="DISCORD_DELETE_GUILD_MEMBER_ROLE_user_id",
+        name="DISCORDBOT_DELETE_GUILD_MEMBER_ROLE_user_id",
         display_name="User Id",
         info="User Id",
         show=False,
         required=True,
     ),
     IntInput(
-        name="DISCORD_LIST_GUILD_MEMBERS_after",
+        name="DISCORDBOT_LIST_GUILD_MEMBERS_after",
         display_name="After",
         info="After",
         show=False,
     ),
     MessageTextInput(
-        name="DISCORD_LIST_GUILD_MEMBERS_guild_id",
+        name="DISCORDBOT_LIST_GUILD_MEMBERS_guild_id",
         display_name="Guild Id",
         info="Guild Id",
         show=False,
         required=True,
     ),
     IntInput(
-        name="DISCORD_LIST_GUILD_MEMBERS_limit",
+        name="DISCORDBOT_LIST_GUILD_MEMBERS_limit",
         display_name="Limit",
         info="Limit",
         show=False,
     ),
     MessageTextInput(
-        name="DISCORD_GET_USER_user_id",
+        name="DISCORDBOT_GET_USER_user_id",
         display_name="User Id",
         info="User Id",
         show=False,
         required=True,
     ),
     MessageTextInput(
-        name="DISCORD_CREATE_DM_access_tokens",
+        name="DISCORDBOT_CREATE_DM_access_tokens",
         display_name="Access Tokens",
         info="Access Tokens",
         show=False,
     ),
     MessageTextInput(
-        name="DISCORD_CREATE_DM_nicks",
+        name="DISCORDBOT_CREATE_DM_nicks",
         display_name="Nicks",
         info="Nicks",
         show=False,
     ),
     MessageTextInput(
-        name="DISCORD_CREATE_DM_recipient_id",
+        name="DISCORDBOT_CREATE_DM_recipient_id",
         display_name="Recipient Id",
         info="Recipient Id",
         show=False,
     ),
     MessageTextInput(
-        name="DISCORD_ADD_GUILD_MEMBER_ROLE_guild_id",
+        name="DISCORDBOT_ADD_GUILD_MEMBER_ROLE_guild_id",
         display_name="Guild Id",
         info="Guild Id",
         show=False,
         required=True,
     ),
     MessageTextInput(
-        name="DISCORD_ADD_GUILD_MEMBER_ROLE_role_id",
+        name="DISCORDBOT_ADD_GUILD_MEMBER_ROLE_role_id",
         display_name="Role Id",
         info="Role Id",
         show=False,
         required=True,
     ),
     MessageTextInput(
-        name="DISCORD_ADD_GUILD_MEMBER_ROLE_user_id",
+        name="DISCORDBOT_ADD_GUILD_MEMBER_ROLE_user_id",
         display_name="User Id",
         info="User Id",
         show=False,
         required=True,
     ),
     MessageTextInput(
-        name="DISCORD_CREATE_GUILD_afk_channel_id",
+        name="DISCORDBOT_CREATE_GUILD_afk_channel_id",
         display_name="Afk Channel Id",
         info="Afk Channel Id",
         show=False,
     ),
     MessageTextInput(
-        name="DISCORD_CREATE_GUILD_afk_timeout",
+        name="DISCORDBOT_CREATE_GUILD_afk_timeout",
         display_name="Afk Timeout",
         info="Afk Timeout",
         show=False,
     ),
     MessageTextInput(
-        name="DISCORD_CREATE_GUILD_channels",
+        name="DISCORDBOT_CREATE_GUILD_channels",
         display_name="Channels",
         info="Channels",
         show=False,
     ),
     MessageTextInput(
-        name="DISCORD_CREATE_GUILD_default_message_notifications",
+        name="DISCORDBOT_CREATE_GUILD_default_message_notifications",
         display_name="Default Message Notifications",
         info="Default Message Notifications",
         show=False,
     ),
     MessageTextInput(
-        name="DISCORD_CREATE_GUILD_description",
+        name="DISCORDBOT_CREATE_GUILD_description",
         display_name="Description",
         info="Description",
         show=False,
     ),
     MessageTextInput(
-        name="DISCORD_CREATE_GUILD_explicit_content_filter",
+        name="DISCORDBOT_CREATE_GUILD_explicit_content_filter",
         display_name="Explicit Content Filter",
         info="Explicit Content Filter",
         show=False,
     ),
     MessageTextInput(
-        name="DISCORD_CREATE_GUILD_icon",
+        name="DISCORDBOT_CREATE_GUILD_icon",
         display_name="Icon",
         info="Icon",
         show=False,
     ),
     MessageTextInput(
-        name="DISCORD_CREATE_GUILD_name",
+        name="DISCORDBOT_CREATE_GUILD_name",
         display_name="Name",
         info="Name",
         show=False,
         required=True,
     ),
     MessageTextInput(
-        name="DISCORD_CREATE_GUILD_preferred_locale",
+        name="DISCORDBOT_CREATE_GUILD_preferred_locale",
         display_name="Preferred Locale",
         info="Preferred Locale",
         show=False,
     ),
     MessageTextInput(
-        name="DISCORD_CREATE_GUILD_region",
+        name="DISCORDBOT_CREATE_GUILD_region",
         display_name="Region",
         info="Region",
         show=False,
     ),
     MessageTextInput(
-        name="DISCORD_CREATE_GUILD_roles",
+        name="DISCORDBOT_CREATE_GUILD_roles",
         display_name="Roles",
         info="Roles",
         show=False,
     ),
     IntInput(
-        name="DISCORD_CREATE_GUILD_system_channel_flags",
+        name="DISCORDBOT_CREATE_GUILD_system_channel_flags",
         display_name="System Channel Flags",
         info="System Channel Flags",
         show=False,
     ),
     MessageTextInput(
-        name="DISCORD_CREATE_GUILD_system_channel_id",
+        name="DISCORDBOT_CREATE_GUILD_system_channel_id",
         display_name="System Channel Id",
         info="System Channel Id",
         show=False,
     ),
     MessageTextInput(
-        name="DISCORD_CREATE_GUILD_verification_level",
+        name="DISCORDBOT_CREATE_GUILD_verification_level",
         display_name="Verification Level",
         info="Verification Level",
         show=False,
