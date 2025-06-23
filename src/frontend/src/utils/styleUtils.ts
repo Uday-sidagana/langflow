@@ -5,6 +5,7 @@ import { TwitterLogoIcon } from "@radix-ui/react-icons";
 import dynamicIconImports from "lucide-react/dynamicIconImports";
 import { lazy } from "react";
 import { FaApple, FaDiscord, FaGithub } from "react-icons/fa";
+import { GoogleTasksIcon } from "../icons/GoogleTasks";
 
 const iconCache = new Map<string, any>();
 
@@ -229,6 +230,7 @@ export const SIDEBAR_CATEGORIES = [
 ];
 
 export const SIDEBAR_BUNDLES = [
+  { display_name: "GoogleTasks", name: "googletasks", icon: "GoogleTasks" },
   { display_name: "Outlook", name: "outlook", icon: "Outlook" },
   {
     display_name: "Language Models",
@@ -342,6 +344,7 @@ export const nodeIconToDisplayIconMap: Record<string, string> = {
   ChatInput: "MessagesSquare",
   ChatOutput: "MessagesSquare",
   //Integration Icons
+  GoogleTasks: "GoogleTasks",
   Outlook: "Outlook",
   AIML: "AI/ML",
   AgentQL: "AgentQL",

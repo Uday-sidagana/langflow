@@ -105,6 +105,10 @@ export const lazyIconsMapping = {
     import("@/icons/GoogleDrive").then((mod) => ({
       default: mod.GoogleDriveIcon,
     })),
+  GoogleTasks: () =>
+    import("@/icons/GoogleTasks").then((mod) => ({
+      default: mod.GoogleTasksIcon,
+    })),
   GoogleGenerativeAI: () =>
     import("@/icons/GoogleGenerativeAI").then((mod) => ({
       default: mod.GoogleGenerativeAIIcon,
